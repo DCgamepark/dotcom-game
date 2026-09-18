@@ -5,10 +5,15 @@ async function loadGames() {
         .order("created_at", { ascending: false });
 
     if (error) {
-        console.error(error);
-        document.getElementById("noResult").textContent =
-            "ゲームの読み込みに失敗しました。";
-        return;
+        console.error("Supabase error:", error);
+
+    alert(
+        "ゲームの登録に失敗しました。\n\n" +
+        "エラー内容:\n" +
+        (error.message || JSON.stringify(error))
+    );
+
+    return;
     }
 
     renderGames(data || []);
