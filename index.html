@@ -325,12 +325,14 @@ button{
 </div>
 
 
-<script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
 
+<script>
 function toggleRegister(){
 
-    const form =
-        document.getElementById("registerForm");
+    const form = document.getElementById("registerForm");
 
     if(form.style.display === "none" ||
        form.style.display === ""){
@@ -343,16 +345,6 @@ function toggleRegister(){
 
     }
 }
-
-
-function registerGame(){
-
-    alert(
-        "ゲーム登録機能は、Supabaseとの接続が完了した後に有効になります！"
-    );
-
-}
-
 </script>
 
 </body>
