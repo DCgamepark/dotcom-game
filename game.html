@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ゲーム - ドットコムゲーム広場</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#f2f2f2;
+    font-family:sans-serif;
+}
+
+header{
+    background:linear-gradient(90deg,#4facfe,#00f2fe);
+    color:white;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+header h1{
+    margin:0;
+    font-size:22px;
+}
+
+.back-button{
+    background:white;
+    color:#0984e3;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#gameTitle{
+    text-align:center;
+    margin:20px 10px 10px;
+}
+
+#gameDescription{
+    text-align:center;
+    color:#555;
+    margin-bottom:20px;
+}
+
+#gameArea{
+    width:95%;
+    max-width:1000px;
+    min-height:500px;
+    margin:0 auto 30px;
+    background:white;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
+    overflow:hidden;
+}
+
+#loading{
+    text-align:center;
+    padding:50px;
+    color:#555;
+}
+
+#error{
+    display:none;
+    text-align:center;
+    padding:50px;
+    color:#d63031;
+}
+
+#gameFrame{
+    width:100%;
+    height:600px;
+    border:0;
+    display:none;
+    background:white;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>🎮 ドットコムゲーム広場</h1>
+
+    <button
+        class="back-button"
+        onclick="location.href='index.html'"
+    >
+        ← ゲーム一覧
+    </button>
+
+</header>
+
+<h2 id="gameTitle">読み込み中...</h2>
+
+<div id="gameDescription"></div>
+
+<div id="gameArea">
+
+    <div id="loading">
+        🎮 ゲームを読み込んでいます...
+    </div>
+
+    <div id="error">
+        ゲームを読み込めませんでした。
+    </div>
+
+    <iframe
+        id="gameFrame"
+        sandbox="allow-scripts allow-forms allow-modals"
+    ></iframe>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+
+<script>
+
+const params =
+    new URLSearchParams(location.search);
+
+const gameId =
+    params.get("id");
+
+async function loadGame(){
+
+    if(!gameId){
+
+        showError("ゲームIDがありません。");
+        return;
+
+    }
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("games")
+        .select("*")
+        .eq("id", gameId)
+        .single();
+
+    if(error || !data){
+
+        console.error(error);
+
+        showError("ゲームが見つかりません。");
+        return;
+
+    }
+
+    document.getElementById("gameTitle")
+        .textContent = data.name;
+
+    document.getElementById("gameDescription")
+        .textContent = data.description || "";
+
+    const gameHtml = data.html_code || "";
+    const gameCss = data.css_code || "";
+    const gameJs = data.js_code || "";
+
+    const gameDocument = `
+
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<style>
+
+${gameCss}
+
+</style>
+
+</head>
+
+<body>
+
+${gameHtml}
+
+<script>
+
+${gameJs}
+
+<\/script>
+
+</body>
+
+</html>
+
+`;
+
+    const frame =
+        document.getElementById("gameFrame");
+
+    frame.srcdoc = gameDocument;
+
+    frame.style.display = "block";
+
+    document.getElementById("loading")
+        .style.display = "none";
+
+}
+
+function showError(message){
+
+    document.getElementById("loading")
+        .style.display = "none";
+
+    const error =
+        document.getElementById("error");
+
+    error.textContent = message;
+
+    error.style.display = "block";
+
+}
+
+loadGame();
+
+</script>
+
+</body>
+</html>
